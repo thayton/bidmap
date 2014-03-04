@@ -7,7 +7,8 @@ class Bid(object):
     def __str__(self):
         attribs = ['title', 'url', 'url_data']
         f = lambda o,a,d: hasattr(o, a) and getattr(o, a) or d
-        return '\n'.join(['%s' % f(self, a, '') for a in attribs])
+        v = [ f(self, a, '') for a in attribs ]
+        return '\n'.join(['%s' % x.encode('utf8') for x in v])
 
 if __name__ == '__main__':
     bid = Bid()
