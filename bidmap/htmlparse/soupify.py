@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup, Comment, Tag
 
 def soupify(page):
-    s = BeautifulSoup(page)
+    s = BeautifulSoup(page, 'lxml')
 
     # Remove unwanted tags
     tags = s.findAll(lambda tag: tag.name == 'script' or \
