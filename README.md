@@ -6,4 +6,4 @@ Set Up
 
 Running Bid Scraper Plugins
 ---------------------------
-  $ python run_plugin.py plugins/ma/bidsaspx/norfolk.py
+  $ python run_plugin.py plugins/va/bidsaspx/norfolk.py
