@@ -5,7 +5,7 @@ import os, sys, imp
 #    Run a plugin via 'python run_plugin.py <path-to-plugin>
 #
 # Example: 
-#    $ python run_plugin.py plugins/ma/bidsaspx/norfolk.py
+#    $ python run_plugin.py plugins/va/bidsaspx/norfolk.py
 #
 ##################################################################
 if __name__ == '__main__':
