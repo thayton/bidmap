@@ -32,8 +32,3 @@ class BidsAspxBidScraper(BidScraper):
         bid_list = self.scrape_bid_links(self.gov['bids_page_url'])
         for bid in bid_list:
             print bid
-
-def get_scraper():
-    return BidsAspxBidScraper()
-
-
