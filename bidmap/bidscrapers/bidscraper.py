@@ -19,7 +19,7 @@ class BidScraper(object):
     def new_bids(self, bid_list):
         ''' Determine which bids on site are new when 
         compared to the database of bids already downloaded'''
-        pass
+        return bid_list
 
     def scrape_bids(self):
         ''' Derived class should override this method with
