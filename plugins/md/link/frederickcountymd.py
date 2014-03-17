@@ -1,6 +1,5 @@
 import re, urlparse
 
-from bs4 import NavigableString
 from bid import Bid
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -24,7 +23,6 @@ class FrederickCountyBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         f = lambda x: x.name == 'a' and x.text == 'Invitation for Bid' or x.text == 'Summary'
-        g = lambda x: hasattr(x, 'string') and x.string is not None
 
         for a in s.findAll(f):
             t = a.previousSibling.previousSibling.previousSibling
