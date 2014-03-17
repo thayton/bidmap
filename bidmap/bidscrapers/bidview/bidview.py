@@ -5,7 +5,7 @@ from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
 
 class BidViewBidScraper(BidScraper):
-    def __init__(self):
+    def __init__(self, govinfo):
         super(BidViewBidScraper, self).__init__(govinfo)
         self.gov = govinfo
 
