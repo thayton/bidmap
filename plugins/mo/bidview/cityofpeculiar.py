@@ -1,8 +1,8 @@
 from bidmap.bidscrapers.bidview.bidview import BidViewBidScraper
 
 GOVINFO = {
-    'name': 'City Of Peculiar Missouri ',
-    'location': 'City Of Peculiar, MO',
+    'name': 'City Of Peculiar Missouri',
+    'location': 'Peculiar, MO',
 
     'home_page_url': 'http://cityofpeculiar.com',
     'bids_page_url': 'http://cityofpeculiar.com/bids.aspx'
