@@ -49,12 +49,9 @@ def sigchld(signo, frame):
 
 class TaskProc:
     ''' 
-    The derived class task must implement a "run()" method that will 
-    be called after the task is launched in a separate process. This
-    run method should be the code for whatever work the task is intended
-    to do
+    Bookkeeping for the pid associated with a specific task being run
     '''
-    def __init__(self, pid=None, task=None, logfile='job_scraper_engine.log'):
+    def __init__(self, pid=None, task=None, logfile='bid_scraper_engine.log'):
         self.pid = pid
         self.task = task
         self.launch_time = None
