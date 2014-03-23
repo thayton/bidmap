@@ -81,5 +81,5 @@ if __name__ == '__main__':
     pldr = PluginLoader()
     pldr.load_plugins('../plugins/ga/')
 
-    plug = pldr.get_plugin('www.saintcorporation.com')
+    plug = pldr.get_plugin('www.cityofcovington.org')
     print "plug.get_bids %s" % plug.get_bids
