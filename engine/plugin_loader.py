@@ -6,6 +6,8 @@ import sys
 import imp
 import logging
 
+from urlparse import urlparse
+
 class FileFilter:
     """
     Class for recursively loading a list of files, filtered by their extension, from a given a directory
@@ -13,7 +15,7 @@ class FileFilter:
     def __init__(self):
         pass
 
-    def get_files(self, dir, ext):
+    def get_files(self, directory, ext):
         """ 
         Recursively descend into a directory and
         return all plugin files found 
@@ -24,7 +26,7 @@ class FileFilter:
         def is_plugin(f):
             return os.path.splitext(f)[1] == ext
 
-        dirents = [ os.path.join(dir, f) for f in os.listdir(dir) ]
+        dirents = [ os.path.join(directory, f) for f in os.listdir(directory) ]
 
         ret = filter(is_notdir, dirents)
         ret = filter(is_plugin, ret)
@@ -48,11 +50,11 @@ class PluginLoader:
         """
         Load plugins from files unless they are in the exclude list
         """
-        for dir in dirlist:
-            files = self.file_filter.get_files(dir, '.py')
+        for directory in dirlist:
+            files = self.file_filter.get_files(directory, '.py')
             for f in files:
                 plug = self.load_plugin(f)
-                if plug.name() not in exclude:
+                if self.plug_name(plug) not in exclude:
                     #
                     # Plugin can mark itself to be skipped by setting
                     # the 'skip' attribute. 
@@ -72,14 +74,26 @@ class PluginLoader:
     
     def get_plugin(self, site):
         """ Return the plugin used for scraping bids from the given site """
-        if site not in self.plugins:
-            return None
-        else:
-            return self.plugins[site]
+        for plugin in self.plugins:
+            if site == plugin.__name__:
+                return plugin
+            
+        return None
+
+    def plug_name(self, plug_module):
+        netloc = urlparse(plug_module.GOVINFO['home_page_url']).netloc
+        tld = netloc.rsplit('.', 1)[1]
+
+        name = tld + '-' + plug_module.__name__
+        return name
+        
 
 if __name__ == '__main__':
     pldr = PluginLoader()
-    pldr.load_plugins('../plugins/ga/')
+    pldr.load_plugins(['../plugins/ga/'])
 
-    plug = pldr.get_plugin('www.cityofcovington.org')
-    print "plug.get_bids %s" % plug.get_bids
+    plug = pldr.get_plugin('cityofcovington')
+
+    bid_scraper = plug.get_scraper()
+    bid_scraper.scrape_bids()
+
