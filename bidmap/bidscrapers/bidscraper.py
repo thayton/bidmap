@@ -1,3 +1,5 @@
+import logging
+
 from bidmap.browser.bidmap_browser import BidMapBrowser
 
 class BidScraper(object):
@@ -5,7 +7,30 @@ class BidScraper(object):
         self.gov = govinfo
         self.br = BidMapBrowser()
         self.br.set_handle_robots(False)
+        self.init_logger()
 
+    def class_name(self):
+        ''' For logging purposes '''
+        return '%s' % type(self).__name__
+
+    def init_logger(self):
+        self.logger = logging.getLogger('bidmap.BidScraper.%s' % self.class_name())
+        self.logger.setLevel(logging.DEBUG)
+
+        sh = None
+        for handler in self.logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                sh = handler
+
+        if not sh:
+            sh = logging.StreamHandler()
+            sh.setLevel(logging.DEBUG)        
+
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            sh.setFormatter(formatter)
+
+            self.logger.addHandler(sh)
+        
     def scrape_bid_links(self, url):
         ''' Derived class should override this method with
         scraping routine specific to each site '''
@@ -28,6 +53,6 @@ class BidScraper(object):
         self.prune_unlisted_bids(bid_list)
         new_bids = self.new_bids(bid_list)
         for bid in new_bids:
-            print bid
+            self.logger.debug('%s' % bid)
 
 
