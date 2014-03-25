@@ -52,12 +52,8 @@ class PluginRunner(object):
         self.logger.info('running plugin %s' % self.plugin)
 
         bid_scraper = self.plugin.get_scraper()
-#
-# XXX Uncomment this once the code for determining the delta
-#     of new bids to add / old bids to remove has been written
-#
-#        bid_scraper.reset_database_connection()
-#
+        bid_scraper.reset_database_connection()
+
         try:
             bid_scraper.scrape_bids()
         except Exception, e:
