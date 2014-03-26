@@ -1,6 +1,14 @@
+import os
+import sys
 import logging
 
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../../bidmap_django/')))
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../../bidmap_django/bidmap_django/')))
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
 from bidmap.browser.bidmap_browser import BidMapBrowser
+from bidmapdb.models import *
 
 class BidScraper(object):
     def __init__(self, govinfo=None):
