@@ -7,6 +7,9 @@ sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../../
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
+from django import db 
+from django.core.exceptions import ObjectDoesNotExist
+
 from bidmap.browser.bidmap_browser import BidMapBrowser
 from bidmapdb.models import *
 
@@ -17,9 +20,43 @@ class BidScraper(object):
         self.br.set_handle_robots(False)
         self.init_logger()
 
+        if govinfo is not None:
+            self.set_org(govinfo)
+            self.logger.debug('Initialized scraper for organization %s' % self.org.name)
+            self.logger.debug('%s currently has %d bids in database' % (self.org.name, self.org.bid_set.count()))
+
+    def set_org(self, govinfo):
+        try:
+            org = Organization.objects.get(home_page_url=govinfo['home_page_url'])
+        except ObjectDoesNotExist:
+            org = Organization()
+
+        org.name = govinfo['name']
+
+        org.home_page_url = govinfo['home_page_url']
+        org.bids_page_url = govinfo['bids_page_url']
+
+        city,state = govinfo['location'].split(',')
+        city = city.lower().strip()
+        state = state.lower().strip()
+
+        try:
+            location = Location.objects.get(city=city, state=state, country='us')
+        except ObjectDoesNotExist:
+            location = Location(city=city, state=state, country='us')
+            location.save()
+
+        org.location = location
+        org.save()
+
+        self.org = org
+
     def class_name(self):
         ''' For logging purposes '''
         return '%s' % type(self).__name__
+
+    def reset_database_connection(self):
+        db.close_connection()
 
     def init_logger(self):
         self.logger = logging.getLogger('bidmap.BidScraper.%s' % self.class_name())
