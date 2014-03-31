@@ -1,8 +1,9 @@
-import re, urlparse
+import re, urlparse, urllib
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Griffin Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.cityofgriffin.com/Departments/AdministrativeServices/Purchasing/BidOpportunities.aspx'
 }
 
-class GriffinGaBidScraper(BidScraper):
+class GriffinGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(GriffinGaBidScraper, self).__init__(GOVINFO)
 
@@ -30,9 +31,11 @@ class GriffinGaBidScraper(BidScraper):
             t = td.find(text='Title:')
             t = t.parent.nextSibling
 
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = t
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.url = urllib.quote(bid.url, ':/')
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids
