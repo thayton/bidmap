@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db import models
 from django.utils.encoding import smart_str, smart_unicode
 from django.template.defaultfilters import slugify
