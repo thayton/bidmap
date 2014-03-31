@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
 from bidmap.bidscrapers.bidscraper import BidScraper
-from bidmap.htmlparse.soupify import soupify
+from bidmap.htmlparse.soupify import soupify, get_all_text
+
+from bidmapdb.models import *
 
 class BidViewBidScraper(BidScraper):
     def __init__(self, govinfo):
@@ -18,9 +19,21 @@ class BidViewBidScraper(BidScraper):
         r = re.compile(r'^bidView\.aspx\?bid=\d+$')
 
         for a in s.findAll('a', href=r):
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids
+
+    def scrape_bid_description(self, bid):
+        self.br.open(bid.url)
+
+        s = soupify(self.br.response().read())
+        x = {'class': 'bidViewResultsLeft'}
+        t = s.find('td', attrs=x)
+
+        bid.description = get_all_text(t)
+        bid.save()
+
