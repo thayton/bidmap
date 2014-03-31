@@ -37,13 +37,13 @@ class BidScraper(object):
         org.bids_page_url = govinfo['bids_page_url']
 
         city,state = govinfo['location'].split(',')
-        city = city.lower().strip()
-        state = state.lower().strip()
+        city = city.strip()
+        state = state.strip()
 
         try:
-            location = Location.objects.get(city=city, state=state, country='us')
+            location = Location.objects.get(city=city, state=state, country='US')
         except ObjectDoesNotExist:
-            location = Location(city=city, state=state, country='us')
+            location = Location(city=city, state=state, country='US')
             location.save()
 
         org.location = location
@@ -91,6 +91,14 @@ class BidScraper(object):
         compared to the database of bids already downloaded'''
         return bid_list
 
+    def scrape_bid_description(self, bid):
+        '''
+        Derived class should override this method with routine
+        to scrape the bid contents for the links scraped in
+        scrape_bid_links method
+        '''
+        self.logger.debug('%s' % bid)
+
     def scrape_bids(self):
         ''' Derived class should override this method with
         scraping routine specific to each site '''
@@ -98,6 +106,7 @@ class BidScraper(object):
         self.prune_unlisted_bids(bid_list)
         new_bids = self.new_bids(bid_list)
         for bid in new_bids:
-            self.logger.debug('%s' % bid)
+            self.scrape_bid_description(bid)
+
 
 
