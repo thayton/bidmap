@@ -92,7 +92,7 @@ class BidScraper(object):
         """
         return lambda x,y: x.url == y.url and x.url_data == y.url_data
 
-    def prune_unlisted_bids(self, bid_list, use_bid_cmp=False):
+    def prune_unlisted_bids(self, listed_bids, use_bid_cmp=False):
         """
         Remove dead bids from the database - these are bids whose links 
         are in the  database that are no longer listed on the government
@@ -128,7 +128,7 @@ class BidScraper(object):
 
         self.logger.info('Deleted %d unlisted bids' % num_deleted)
 
-    def new_bids(self, bid_list, use_bid_cmp=False):
+    def new_bids(self, listed_bids, use_bid_cmp=False):
         ''' 
         Determine which bids on site are new when compared to the database of bids 
         already downloaded
