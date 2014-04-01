@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Johns Creek Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.johnscreekga.gov/services/purchasing.aspx'
 }
 
-class JohnsCreekGaBidScraper(BidScraper):
+class JohnsCreekGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(JohnsCreekGaBidScraper, self).__init__(GOVINFO)
 
@@ -26,9 +27,10 @@ class JohnsCreekGaBidScraper(BidScraper):
 
         for a in s.findAll('a', href=r):
             h3 = a.findPrevious('h3')
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = h3.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

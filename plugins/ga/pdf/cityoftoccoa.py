@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Toccoa Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.cityoftoccoa.com/bidops.cfm?lid=4121'
 }
 
-class ToccoaGaBidScraper(BidScraper):
+class ToccoaGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(ToccoaGaBidScraper, self).__init__(GOVINFO)
 
@@ -26,9 +27,10 @@ class ToccoaGaBidScraper(BidScraper):
 
         for a in s.findAll('a', href=r):
             g = a.findPrevious('strong')
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = g.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

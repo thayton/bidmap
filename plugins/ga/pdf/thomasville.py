@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Thomasville Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.thomasville.org/Content/Default/10/272/225/city-of-thomasville/doing-business/bid-opportunities.html'
 }
 
-class ThomasvilleGaBidScraper(BidScraper):
+class ThomasvilleGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(ThomasvilleGaBidScraper, self).__init__(GOVINFO)
 
@@ -29,9 +30,10 @@ class ThomasvilleGaBidScraper(BidScraper):
             if h3.text != 'Bid Documents:':
                 continue
 
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = ul.li.a.text
             bid.url = urlparse.urljoin(self.br.geturl(), ul.li.a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

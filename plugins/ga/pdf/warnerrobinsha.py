@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Warner Robins Houston County',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.warnerrobinsha.com/bids.htm'
 }
 
-class WarnerRobinsGaBidScraper(BidScraper):
+class WarnerRobinsGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(WarnerRobinsGaBidScraper, self).__init__(GOVINFO)
 
@@ -25,9 +26,10 @@ class WarnerRobinsGaBidScraper(BidScraper):
         r = re.compile(r'^pdfs/[^.]+-bid-[^.]+\.pdf$')
 
         for a in s.findAll('a', href=r):
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = a.strong.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

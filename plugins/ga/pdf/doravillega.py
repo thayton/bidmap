@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Doraville Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.doravillega.us/procurement-opportunities/'
 }
 
-class DoravilleGaBidScraper(BidScraper):
+class DoravilleGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(DoravilleGaBidScraper, self).__init__(GOVINFO)
 
@@ -25,9 +26,10 @@ class DoravilleGaBidScraper(BidScraper):
         r = re.compile(r'RFP+\.pdf$')
 
         for a in s.findAll('a', href=r):
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

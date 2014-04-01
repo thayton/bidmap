@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Clarkston Geogia',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.clarkstonga.gov/index.php/business/request-for-proposals-quotes-rfp-rfq'
 }
 
-class ClarkstonGaBidScraper(BidScraper):
+class ClarkstonGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(ClarkstonGaBidScraper, self).__init__(GOVINFO)
 
@@ -30,9 +31,10 @@ class ClarkstonGaBidScraper(BidScraper):
             if re.search(z, a.text):
                 continue
 
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids
