@@ -72,6 +72,9 @@ class Bid(models.Model):
 
     md5         = models.CharField(max_length=32, unique=True)
 
+    def __unicode__(self):
+        return self.title
+
     def clean_title(self):
         ''' Remove cruft from titles '''
         self.title = remove_non_ascii(self.title.strip())[:256]
