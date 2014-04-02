@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify, get_all_text
@@ -17,11 +17,23 @@ class BidViewBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'^bidView\.aspx\?bid=\d+$')
+        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
 
         for a in s.findAll('a', href=r):
+            tr = a.findParent('tr')
+            td = tr.findAll('td')
+
+            z = re.search(v, td[-1].text)
+            if z:
+                m,d,y = z.groups()
+
             bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+
+            if z:
+                bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))
+
             bid.location = self.org.location
             bids.append(bid)
 
