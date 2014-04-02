@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Richmond Hill Geogia',
@@ -29,9 +30,10 @@ class RichmondHillGaBidScraper(BidScraper):
         for a in s.findAll(f):
             p = a.findPrevious('span', attrs=x)
 
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = p.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

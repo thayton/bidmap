@@ -1,8 +1,9 @@
 import re, urlparse, mechanize, datetime
 
-from bid import Bid
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'City of Macon',
@@ -51,9 +52,10 @@ class MaconGaBidScraper(BidScraper):
                     done = True
                     break
 
-                bid = Bid()
+                bid = Bid(org=self.org)
                 bid.title = title_div.span.text
                 bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+                bid.location = self.org.location
                 bids.append(bid)
 
             if done:
