@@ -6,7 +6,12 @@ from django.template.defaultfilters import slugify
 
 def remove_non_ascii(s): return "".join(filter(lambda x: ord(x)<128, s))
 
+class LocationManager(models.Manager):
+    def get_by_natural_key(self, city, state, country):
+        return self.get(city=city, state=state, country=country)
+
 class Location(models.Model):
+    objects = LocationManager()
     slug    = models.SlugField(blank=True)
 
     city    = models.CharField(max_length=64)
@@ -25,7 +30,13 @@ class Location(models.Model):
     def __unicode__(self):
         return '%s, %s, %s' % (self.city, self.state, self.country)
 
+class OrganizationManager(models.Manager):
+    def get_by_natural_key(self, home_page_url):
+        return self.get(home_page_url=home_page_url)
+    
 class Organization(models.Model):
+    objects       = OrganizationManager()
+
     name          = models.CharField(max_length=64)
     name_slug     = models.SlugField(blank=True, unique=True, max_length=64)
 
