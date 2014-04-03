@@ -1,6 +1,6 @@
 import re, urlparse
 
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
 
 from bidmapdb.models import *
@@ -13,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.richmondhill-ga.gov/index.aspx?nid=143'
 }
 
-class RichmondHillGaBidScraper(BidScraper):
+class RichmondHillGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(RichmondHillGaBidScraper, self).__init__(GOVINFO)
 
