@@ -1,6 +1,6 @@
 import re, urlparse
 
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
 
 from bidmapdb.models import *
@@ -13,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.decaturga.com/index.aspx?page=186'
 }
 
-class DecaturGaBidScraper(BidScraper):
+class DecaturGaBidScraper(PdfBidScraper):
     def __init__(self):
         super(DecaturGaBidScraper, self).__init__(GOVINFO)
 
