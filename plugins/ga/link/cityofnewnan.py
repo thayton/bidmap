@@ -1,7 +1,7 @@
 import re, urlparse
 
 from bidmap.bidscrapers.bidscraper import BidScraper
-from bidmap.htmlparse.soupify import soupify
+from bidmap.htmlparse.soupify import soupify, get_all_text
 
 from bidmapdb.models import *
 
@@ -33,6 +33,16 @@ class NewnanGaBidScraper(BidScraper):
             bids.append(bid)
 
         return bids
+
+    def scrape_bid_description(self, bid):
+        self.br.open(bid.url)
+
+        s = soupify(self.br.response().read())
+        x = {'class': 'post'}
+        d = s.find('div', attrs=x)
+
+        bid.description = get_all_text(d)
+        bid.save()
 
 def get_scraper():
     return NewnanGaBidScraper()
