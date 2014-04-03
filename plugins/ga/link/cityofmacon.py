@@ -1,7 +1,7 @@
 import re, urlparse, mechanize, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
-from bidmap.htmlparse.soupify import soupify
+from bidmap.htmlparse.soupify import soupify, get_all_text
 
 from bidmapdb.models import *
 
