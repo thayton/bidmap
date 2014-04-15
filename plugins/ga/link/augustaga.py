@@ -1,7 +1,8 @@
-import re, urlparse
+import re, urlparse, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
-from bidmap.htmlparse.soupify import soupify
+from bidmap.htmlparse.soupify import soupify, get_all_text
+from bidmap.txtextract.pdftohtml import pdftohtml
 
 from bidmapdb.models import *
 
@@ -58,25 +59,40 @@ class AugustaGaBidScraper(BidScraper):
             self.br.submit()
 
             x = soupify(self.br.response().read())
-            z = re.compile(r'_ITB')
+            z = re.compile(r'(_ITB|_RFP)')
             d = re.compile(r'DocumentView\.aspx\?DocID=\d+$')
             f = lambda y: y.name == 'a' and re.search(d, y.get('href', '')) and re.search(z, y.text) 
             a = x.find(f)
+
+            p = x.find('span', id='Results_BidInfo1_lblCloseDate')
+            v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
+            b = re.search(v, p.text)
+
+            if b:
+                m,d,y = b.groups()
 
             bid = Bid(org=self.org)
             bid.title = i.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            if b:
+                bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))
+
             bids.append(bid)
 
             self.br.back()
 
         return bids
 
-    def scrape_bids(self):
-        bid_list = self.scrape_bid_links(self.gov['bids_page_url'])
-        for bid in bid_list:
-            print bid
+    def scrape_bid_description(self, bid):
+        self.br.open(bid.url)
+
+        d = self.br.response().read()
+        s = soupify(pdftohtml(d))
+
+        bid.description = get_all_text(s.html.body)
+        bid.save()
 
 def get_scraper():
     return AugustaGaBidScraper()
