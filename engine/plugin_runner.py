@@ -19,6 +19,15 @@ import traceback
 from plugin_loader import PluginLoader, FileFilter
 from urlparse import urlparse
 from datetime import date
+from serialize import serialize_org
+
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../bidmap_django/')))
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '../bidmap_django/bidmap_django/')))
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+from django.core.exceptions import ObjectDoesNotExist
+from bidmapdb.models import *
 
 class PluginRunner(object):
     def __init__(self, plugin, results_dir='results', logfile='/var/log/bidmap/plugin_runner.log'):
@@ -66,7 +75,36 @@ class PluginRunner(object):
         """
         Save bid results to disk. 
         """
-        pass
+        try:
+            org = Organization.objects.get(home_page_url=self.plugin.GOVINFO['home_page_url'])
+        except ObjectDoesNotExist:
+            return
+
+        file = self.make_plugin_filename()
+        path = '%s/%s.json' % (self.results_dir, file)
+
+        try:
+            so = serialize_org(org)
+
+            f = open(path, 'w')
+            f.write(json.dumps(so, indent=2))
+            f.close()
+        except Exception, e:
+            sys.stderr.write("Exception: %s\n" % e)
+            sys.exc_clear()
+
+        num_bids = org.bid_set.count()
+        self.logger.info('Saved %d bids for org %s to file %s' % (num_bids, org.name, path))
+
+    def make_plugin_filename(self):
+        """
+        Return the filename we'll use to store results for a given plugin.
+        """
+        netloc = urlparse(self.plugin.GOVINFO['home_page_url']).netloc
+        tld = netloc.rsplit('.', 1)[1]
+
+        filename = tld + '-' + self.plugin.__name__
+        return filename
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -76,5 +114,5 @@ if __name__ == '__main__':
     pldr = PluginLoader()
     plug = pldr.load_plugin(sys.argv[1])
 
-    plugin_runner = PluginRunner(plugin=plug, results_dir='.')
+    plugin_runner = PluginRunner(plugin=plug, results_dir='results/')
     plugin_runner.run()
