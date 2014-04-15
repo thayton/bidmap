@@ -9,6 +9,9 @@ from django.core import serializers
 from bidmapdb.models import *
 
 def serialize_org(o):
+    org_fields = ('name', 'home_page_url', 'bids_page_url', 'location')
+    bid_fields = ()
+ 
     d = serializers.serialize("json", [o], fields=org_fields, indent=2, use_natural_keys=True)
     j = json.loads(d)
 
@@ -25,9 +28,6 @@ def serialize_org(o):
     return org
     
 if __name__ == '__main__':
-    org_fields = ('name', 'home_page_url', 'bids_page_url', 'location')
-    bid_fields = ()
- 
     for o in Organization.objects.all():
         org = serialize_org(o)
         print json.dumps(org, indent=2)
