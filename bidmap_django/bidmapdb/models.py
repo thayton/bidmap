@@ -70,8 +70,6 @@ class Bid(models.Model):
     due_date    = models.DateField(null=True, blank=True)
     email       = models.EmailField(max_length=256, blank=True)
 
-    md5         = models.CharField(max_length=32, unique=True)
-
     def __unicode__(self):
         return self.title
 
@@ -84,22 +82,10 @@ class Bid(models.Model):
         ''' Chop spaces in description '''
         self.description = ' '.join(self.description.split())
 
-    def hexdigest(self):
-        ''' Unique MD5 for each bid '''
+    def save(self, *args, **kwargs):
         self.clean_title()
         self.clean_description()
-
-        m = hashlib.md5()
-        m.update(self.org.home_page_url)
-        m.update(self.title)
-        m.update(self.url.encode('utf8'))
-        m.update(self.url_data)
-        m.update(smart_str(self.description))
-
-        return m.hexdigest()
-
-    def save(self, *args, **kwargs):
-        self.md5 = self.hexdigest()
+        print 'Saving %s - %s' % (self.org, self.title)
         super(Bid, self).save(*args, **kwargs)
 
 
