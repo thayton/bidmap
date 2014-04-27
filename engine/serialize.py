@@ -21,8 +21,8 @@ def serialize_org(o):
     d = serializers.serialize("json", o.bid_set.all(), indent=2, use_natural_keys=True)
     j = json.loads(d)
 
-    if len(j):
-        bid = j[0]['fields']
+    for b in j:
+        bid = b['fields']
         org['bids'].append(bid)
 
     return org
