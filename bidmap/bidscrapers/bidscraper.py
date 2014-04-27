@@ -13,15 +13,22 @@ from django.core.exceptions import ObjectDoesNotExist
 from bidmap.browser.bidmap_browser import BidMapBrowser
 from bidmapdb.models import *
 
+def find(iseq, job, seq):
+    for item in seq:
+        if iseq(job, item):
+            return True
+
+    return False
+
 class BidScraper(object):
     def __init__(self, govinfo=None):
         self.gov = govinfo
         self.br = BidMapBrowser()
         self.br.set_handle_robots(False)
-        self.init_logger()
 
         if govinfo is not None:
             self.set_org(govinfo)
+            self.init_logger()
             self.logger.debug('Initialized scraper for organization %s' % self.org.name)
             self.logger.debug('%s currently has %d bids in database' % (self.org.name, self.org.bid_set.count()))
 
@@ -59,7 +66,7 @@ class BidScraper(object):
         db.close_connection()
 
     def init_logger(self):
-        self.logger = logging.getLogger('bidmap.BidScraper.%s' % self.class_name())
+        self.logger = logging.getLogger('bidmap.%s' % self.org.home_page_url)
         self.logger.setLevel(logging.DEBUG)
 
         sh = None
@@ -71,7 +78,7 @@ class BidScraper(object):
             sh = logging.StreamHandler()
             sh.setLevel(logging.DEBUG)        
 
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            formatter = logging.Formatter('%(asctime)s - %(process)s - %(name)s - %(levelname)s - %(message)s')
             sh.setFormatter(formatter)
 
             self.logger.addHandler(sh)
@@ -128,31 +135,24 @@ class BidScraper(object):
 
         self.logger.info('Deleted %d unlisted bids' % num_deleted)
 
-    def new_bids(self, listed_bids, use_bid_cmp=False):
+    def new_bids(self, listed_bids):
         ''' 
         Determine which bids on site are new when compared to the database of bids 
         already downloaded
 
-        Callers can set use_bid_cmp=True and then define get_bid_cmp() to return a 
-        comparison function of their choosing if the url,url_data comparison used 
-        here does not suffice.
+        Callers can override get_bid_cmp() to return a comparison function of their 
+        choosing if the url,url_data comparison used here does not suffice.
         '''
         self.logger.debug('Extracting new bids from %d bids listed' % len(listed_bids))
+
+        cmp = self.get_bid_cmp()
         new_bids = []
 
-        if use_bid_cmp:
-            cmp = self.get_bid_cmp()
-
-            for bid in listed_bids:
-                if not find(cmp, bid, self.org.bid_set.all()) and \
-                   not find(cmp, bid, new_bids): # don't allow dups in new_bids
-                    self.logger.debug('New bid (%s) at org %s' % (bid.url, self.org))
-                    new_bids.append(bid)
-        else:
-            for bid in listed_bids:
-                if self.org.bid_set.filter(url=bid.url, url_data=bid.url_data).count() == 0:
-                    self.logger.debug('New bid (%s) at org %s' % (bid.url, self.org))
-                    new_bids.append(bid)
+        for bid in listed_bids:
+            if not find(cmp, bid, self.org.bid_set.all()) and \
+               not find(cmp, bid, new_bids): # don't allow dups in new_bids
+                self.logger.debug('New bid (%s) at org %s' % (bid.url, self.org))
+                new_bids.append(bid)
 
         self.logger.info('%d new bid listings' % len(new_bids))            
         return new_bids
