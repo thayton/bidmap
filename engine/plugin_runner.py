@@ -45,7 +45,7 @@ class PluginRunner(object):
             fh = logging.FileHandler(filename=logfile, mode='w')
             fh.setLevel(logging.DEBUG)
 
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            formatter = logging.Formatter('%(asctime)s - %(process)s - %(name)s - %(levelname)s - %(message)s')
             fh.setFormatter(formatter)
 
             self.logger.addHandler(fh)
