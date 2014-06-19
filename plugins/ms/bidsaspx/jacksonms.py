@@ -1,11 +1,11 @@
 from bidmap.bidscrapers.bidsaspx.bidsaspx import BidsAspxBidScraper
 
 GOVINFO = {
-    'name': 'Desoto County Mississippi',
-    'location': 'Hernando, MS',
+    'name': 'Jackson Mississippi',
+    'location': 'Jackson, MS',
 
-    'home_page_url': 'http://www.desotocountyms.gov',
-    'bids_page_url': 'http://www.desotocountyms.gov/Bids.aspx'
+    'home_page_url': 'http://www.jacksonms.gov',
+    'bids_page_url': 'http://www.jacksonms.gov/bids.aspx'
 }
 
 def get_scraper():
