@@ -1,11 +1,11 @@
 from bidmap.bidscrapers.bidsaspx.bidsaspx import BidsAspxBidScraper
 
 GOVINFO = {
-    'name': 'Hallandale Beach Florida',
-    'location': 'Hallandale Beach, FL',
+    'name': 'Dania Beach Florida',
+    'location': 'Dania Beach, FL',
 
-    'home_page_url': 'http://www.hallandalebeachfl.gov',
-    'bids_page_url': 'http://www.hallandalebeachfl.gov/bids.aspx'
+    'home_page_url': 'http://www.daniabeachfl.gov',
+    'bids_page_url': 'http://www.daniabeachfl.gov/bids.aspx'
 }
 
 def get_scraper():
