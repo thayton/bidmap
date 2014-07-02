@@ -1,7 +1,7 @@
 from bidmap.bidscrapers.bidsaspx.bidsaspx import BidsAspxBidScraper
 
 GOVINFO = {
-    'name': 'Harper County County Kansas',
+    'name': 'Harper County Kansas',
     'location': 'Anthony, KS',
 
     'home_page_url': 'http://www.harpercountyks.gov',
