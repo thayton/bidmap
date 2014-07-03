@@ -4,8 +4,8 @@ GOVINFO = {
     'name': 'City of Norcross Georgia',
     'location': 'Norcross, GA',
 
-    'home_page_url': 'http://ga-norcross.civicplus.com/bids.aspx',
-    'bids_page_url': 'http://ga-norcross.civicplus.com'
+    'home_page_url': 'http://ga-norcross.civicplus.com',
+    'bids_page_url': 'http://ga-norcross.civicplus.com/bids.aspx'
 }
 
 def get_scraper():
