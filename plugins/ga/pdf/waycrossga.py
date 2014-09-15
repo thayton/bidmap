@@ -26,7 +26,7 @@ class WaycrossGaBidScraper(PdfBidScraper):
         r = re.compile(r'/Currentbids/[^.]+\.pdf$')
         x = {'class': 'learn-more-content'}
         d = s.find('div', attrs=x)
-        d.ul.ul.extract()
+        d.extract()
 
         for a in d.findAll('a', href=r):
             bid = Bid(org=self.org)
