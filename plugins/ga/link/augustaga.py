@@ -25,6 +25,12 @@ class AugustaGaBidScraper(BidScraper):
         self.br.select_form('form1')
         self.br.submit()
 
+        # Clear the cookie jar so we're always starting on the same 
+        # landing page each time we run the plugin
+#        cookiejar = self.br._ua_handlers['_cookies'].cookiejar
+#        cookiejar.clear()
+
+        # Select 'Open Bids' tab
         self.br.select_form('form1')
         self.br.submit('ARCBidSearch1$ctl01$btnOpen')
 
@@ -63,6 +69,11 @@ class AugustaGaBidScraper(BidScraper):
             d = re.compile(r'DocumentView\.aspx\?DocID=\d+$')
             f = lambda y: y.name == 'a' and re.search(d, y.get('href', '')) and re.search(z, y.text) 
             a = x.find(f)
+
+            # Not all of them have ITB/RFP links
+            if not a:
+                self.br.back()
+                continue
 
             p = x.find('span', id='Results_BidInfo1_lblCloseDate')
             v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
