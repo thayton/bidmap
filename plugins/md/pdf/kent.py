@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, urllib2
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -33,6 +33,7 @@ class KentBidScraper(PdfBidScraper):
             bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.url =  urllib2.quote(bid.url, '/:')
             bid.location = self.org.location
             bids.append(bid)
 
