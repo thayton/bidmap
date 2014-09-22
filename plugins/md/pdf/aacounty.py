@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Anne Arundel County Maryland',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.aacounty.org/CentServ/Purchasing/solicitations.cfm#.UyCngOewL1U'
 }
 
-class AnneArundelBidScraper(BidScraper):
+class AnneArundelBidScraper(PdfBidScraper):
     def __init__(self):
         super(AnneArundelBidScraper, self).__init__(GOVINFO)
 
@@ -35,9 +36,10 @@ class AnneArundelBidScraper(BidScraper):
             title = a.findPrevious(text=re.compile(r'Title:'))
             title = re.sub(r'Title:', '', title)
 
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = title
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids

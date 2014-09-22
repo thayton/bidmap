@@ -1,8 +1,9 @@
 import re, urlparse
 
-from bid import Bid
-from bidmap.bidscrapers.bidscraper import BidScraper
+from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Carroll County Maryland',
@@ -12,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://ccgovernment.carr.org/ccg/bidnotce/'
 }
 
-class CarrollCountyBidScraper(BidScraper):
+class CarrollCountyBidScraper(PdfBidScraper):
     def __init__(self):
         super(CarrollCountyBidScraper, self).__init__(GOVINFO)
 
@@ -29,9 +30,10 @@ class CarrollCountyBidScraper(BidScraper):
             b = f.findPrevious(text='Bid Number:')
             t = b.findPrevious('br').previous
 
-            bid = Bid()
+            bid = Bid(self.org)
             bid.title = t
             bid.url = urlparse.urljoin(self.br.geturl(), f['action'])
+            bid.location = self.org.location
             bids.append(bid)
 
         return bids
