@@ -1,7 +1,9 @@
-import re, urlparse
+import re, urlparse, urllib2
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Forest Park Geogia',
@@ -27,8 +29,9 @@ class ForestParkGaBidScraper(PdfBidScraper):
         for a in s.findAll(f):
             p = a.parent
             bid = Bid(org=self.org)
-            bid.title = p.strong.text
+            bid.title = p.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.url = urllib2.quote(bid.url, '/:')
             bid.location = self.org.location
             bids.append(bid)
 
