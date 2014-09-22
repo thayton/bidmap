@@ -17,7 +17,7 @@ class BidsAspxBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'bids\.aspx\?bidID=\d+$')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
+        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') # date regex
 
         for a in s.findAll('a', href=r):
             if a.get('style', False):
@@ -49,6 +49,21 @@ class BidsAspxBidScraper(BidScraper):
         s = soupify(self.br.response().read())
         x = {'summary': 'Bid Details'}
         t = s.find('table', attrs=x)
+        
+        c = re.compile(r'^Contact', re.IGNORECASE)
+        f = lambda x: x.name == 'span' and 'BidListHeader' in x.attrs.get('class', []) and re.search(c, x.text)
+        p = t.find(f)
+
+        if p:
+            tr = p.findNext('tr')
+            bid.contact = tr.text.strip()
+
+            e = re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b', re.IGNORECASE) # email regex
+            v = tr.find(text=e)
+
+            if v:
+                m = re.search(e, v)
+                bid.email = m.group(0)
 
         bid.description = get_all_text(t)
         bid.save()
