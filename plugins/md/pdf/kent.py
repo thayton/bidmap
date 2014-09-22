@@ -13,7 +13,7 @@ GOVINFO = {
     'bids_page_url': 'http://www.kent.k12.md.us/index.php/requests-for-bids'
 }
 
-class KentBidScraper(BidScraper):
+class KentBidScraper(PdfBidScraper):
     def __init__(self):
         super(KentBidScraper, self).__init__(GOVINFO)
 
