@@ -69,6 +69,7 @@ class Bid(models.Model):
 
     due_date    = models.DateField(null=True, blank=True)
     email       = models.EmailField(max_length=256, blank=True)
+    contact     = models.TextField(blank=True)
 
     def __unicode__(self):
         return self.title
