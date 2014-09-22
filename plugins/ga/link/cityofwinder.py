@@ -36,6 +36,16 @@ class WinderGaBidScraper(BidScraper):
 
         return bids
 
+    def scrape_bid_description(self, bid):
+        self.br.open(bid.url)
+
+        s = soupify(self.br.response().read())
+        x = {'class': 'content'}
+        d = s.find('div', attrs=x)
+
+        bid.description = get_all_text(d)
+        bid.save()
+
 def get_scraper():
     return WinderGaBidScraper()
 
