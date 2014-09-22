@@ -24,12 +24,24 @@ class UnionCityGaBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'^index\.aspx\?recordid=\d+')
+        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') # date regex
 
         for a in s.findAll('a', href=r):
+            tr = a.findParent('tr')
+            td = tr.findAll('td')
+
+            z = re.search(v, td[-1].text)
+            if z:
+                m,d,y = z.groups()
+            
             bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            if z:
+                bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))
+
             bids.append(bid)
 
         return bids
