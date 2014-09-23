@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -24,13 +24,12 @@ class UnionCityGaBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'^index\.aspx\?recordid=\d+')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') # date regex
 
         for a in s.findAll('a', href=r):
             tr = a.findParent('tr')
             td = tr.findAll('td')
 
-            z = re.search(v, td[-1].text)
+            z = re.search(self.date_regex, td[-1].text)
             if z:
                 m,d,y = z.groups()
             
