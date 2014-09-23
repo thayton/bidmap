@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -40,6 +40,23 @@ class AnneArundelBidScraper(PdfBidScraper):
             bid.title = title
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            d = a.findNext(text=re.compile(r'^Due Date/Time:'))
+            d = d.split(':')[1].strip()
+            d = d.split('@')[0].strip()
+
+            try:
+                r = time.strptime(d, "%B %d, %Y")
+                bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+            except:
+                pass
+
+            tr = a.findParent('tr')
+            p = tr.find(text=re.compile(r'Project Manager:'))
+
+            if p:
+                bid.contact = p.parent.text
+
             bids.append(bid)
 
         return bids
