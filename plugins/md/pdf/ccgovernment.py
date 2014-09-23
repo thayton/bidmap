@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -23,17 +23,23 @@ class CarrollCountyBidScraper(PdfBidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'\.pdf$')
-        x = {'action': r}
+        r = re.compile(r'^files/[^.]+\.pdf$')
 
-        for f in s.findAll('form', attrs=x):
-            b = f.findPrevious(text='Bid Number:')
-            t = b.findPrevious('br').previous
-
+        for a in s.findAll('a', href=r):
             bid = Bid(self.org)
-            bid.title = t
-            bid.url = urlparse.urljoin(self.br.geturl(), f['action'])
+            bid.title = a.text
+            bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            x = re.compile(r'lblSubDate')
+            p = a.findNext('span', id=x)
+
+            if p:
+                z = re.search(self.date_regex, p.text)
+                if z:
+                    m,d,y = z.groups()
+                    bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))                
+
             bids.append(bid)
 
         return bids
