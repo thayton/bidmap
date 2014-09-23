@@ -1,8 +1,9 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
-from bid import Bid
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify
+
+from bidmapdb.models import *
 
 GOVINFO = {
     'name': 'Garrett County Maryland',
@@ -25,12 +26,27 @@ class GarrettCountyBidScraper(BidScraper):
         r = re.compile(r'^/purchasing/bid-form\?bidnumb=\d+')
 
         for a in s.findAll('a', href=r):
-            bid = Bid()
+            bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
+            bid.location = self.org.location
+
+            d = a.findNext(text=re.compile(r'Due:'))
+            d = d.split(':')[1].strip()
+
+            try:
+                r = time.strptime(d, "%B %d, %Y")
+                bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+            except:
+                pass
+
             bids.append(bid)
 
         return bids
+
+    def scrape_bid_description(self, bid):
+        # XXX bid document is behind a registration wall
+        bid.save()
 
 def get_scraper():
     return GarrettCountyBidScraper()
