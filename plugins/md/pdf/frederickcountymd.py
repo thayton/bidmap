@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -31,6 +31,20 @@ class FrederickCountyBidScraper(PdfBidScraper):
             bid.title = t
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            tr = a.findParent('tr')
+            d = tr.find(text=re.compile(r'\bDue:'))
+
+            if d:
+                d = d.split(':')[1].strip()
+                d = d.split('at')[0].strip()
+
+                try:
+                    r = time.strptime(d, "%B %d, %Y")
+                    bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+                except:
+                    pass
+
             bids.append(bid)
 
         return bids
