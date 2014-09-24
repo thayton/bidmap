@@ -1,7 +1,7 @@
-import re, urlparse
+import re, urlparse, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
-from bidmap.htmlparse.soupify import soupify
+from bidmap.htmlparse.soupify import soupify, get_all_text
 
 from bidmapdb.models import *
 
@@ -17,22 +17,31 @@ class SaintMarysBidScraper(BidScraper):
     def __init__(self):
         super(SaintMarysBidScraper, self).__init__(GOVINFO)
 
-    def scrape_bid_links(self, url):
-        bids = []
-
-        self.br.open(url)
+    def scrape_bids(self):
+        self.br.open(self.org.bids_page_url)
 
         s = soupify(self.br.response().read())
         r = re.compile(r'^\s*Solicitation')
         f = lambda x: x.name == 'td' and re.search(r, x.text)
 
-        for t in s.findAll(f):
-            bid = Bid()
-            bid.title = t.text
-            bid.url = self.br.geturl()
-            bids.append(bid)
+        self.org.bid_set.all().delete()
 
-        return bids
+        for td in s.findAll(f):
+            tr = td.findParent('tr')
+            td = tr.findAll('td')
+
+            bid = Bid(org=self.org)
+            bid.title = td[0].text
+            bid.url = self.br.geturl()
+            bid.description = get_all_text(td[1])
+
+            z = re.search(self.date_regex, td[-3].text)
+            if z:
+                m,d,y = z.groups()
+                bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))
+
+            bid.save()
+
 
 def get_scraper():
     return SaintMarysBidScraper()
