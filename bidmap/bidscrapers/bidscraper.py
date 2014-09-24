@@ -27,6 +27,7 @@ class BidScraper(object):
         self.br = BidMapBrowser()
         self.br.set_handle_robots(False)
         self.email_regex = re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b', re.IGNORECASE)
+        self.date_regex = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})') 
 
         if govinfo is not None:
             self.set_org(govinfo)
