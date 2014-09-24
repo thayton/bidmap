@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
 from bidmap.bidscrapers.bidscraper import BidScraper
 from bidmap.htmlparse.soupify import soupify, get_all_text
@@ -26,10 +26,21 @@ class HarfordCountyBidScraper(BidScraper):
         r = re.compile(r'^BidBoard\.cfm\?BidID=\d+$')
 
         for a in s.findAll('a', href=r):
+            tr = a.findParent('tr')
+            td = tr.findAll('td')
+
             bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            v = re.compile(r'(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})') # date regex
+            z = re.search(v, td[-4].text)
+
+            if z:
+                m,d,y = z.groups()
+                bid.due_date = datetime.date(day=int(d), month=int(m), year=int(y))
+
             bids.append(bid)
 
         return bids
