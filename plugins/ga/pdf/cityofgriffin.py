@@ -1,4 +1,4 @@
-import re, urlparse, urllib
+import re, urlparse, urllib, time, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -23,8 +23,9 @@ class GriffinGaBidScraper(PdfBidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'/rfps/[^.]+\.pdf$')
-        f = lambda x: x.name == 'a' and re.search(r, x.get('href', '')) and x.text == 'Open'
+        y = re.compile(r'^/LinkClick\.aspx\?')
+        z = re.compile(r'^Bid:')
+        f = lambda x: x.name == 'a' and re.search(y, x.get('href', '')) and re.search(z, x.text)
 
         for a in s.findAll(f):
             td = a.findParent('td')
@@ -36,6 +37,16 @@ class GriffinGaBidScraper(PdfBidScraper):
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.url = urllib.quote(bid.url, ':/')
             bid.location = self.org.location
+
+            d = a.findNext(text=re.compile(r'^Close Date:'))
+            d = d.parent.nextSibling.strip()
+
+            try:
+                r = time.strptime(d, "%B %d, %Y")
+                bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+            except:
+                pass
+
             bids.append(bid)
 
         return bids
