@@ -9,7 +9,7 @@ GOVINFO = {
     'name': 'Plainfield new jersey',
     'location': 'Plainfield, NJ',
 
-     'home_page_url': 'http://www.plainfieldnj.gov',
+    'home_page_url': 'http://www.plainfieldnj.gov',
     'bids_page_url': 'http://www.plainfieldnj.gov/bids.aspx'
 }
 
