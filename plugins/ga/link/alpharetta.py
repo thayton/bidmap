@@ -25,7 +25,6 @@ class AlpharettaGaBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'^index\.php\?m=procurement&id=\d+$')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
 
         for a in s.findAll('a', href=r):
             tr = a.findParent('tr')
