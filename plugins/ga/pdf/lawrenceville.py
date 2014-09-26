@@ -24,10 +24,12 @@ class LawrencevilleGaBidScraper(PdfBidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'\.pdf$')
+        y = re.compile(r'^ADVERTISEMENT', re.IGNORECASE)
+        g = lambda x: x.name == 'strong' and re.search(y, x.text)
         f = lambda x: x.name == 'a' and re.search(r, x.get('href', '')) and x.text == 'click here'
 
         for a in s.findAll(f):
-            t = a.findPrevious('strong')
+            t = a.findPrevious(g)
             bid = Bid(org=self.org)
             bid.title = t.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
