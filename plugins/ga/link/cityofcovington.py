@@ -26,13 +26,12 @@ class CovingtonGaBidScraper(BidScraper):
         x = {'summary': 'Current Bid Postings '}
         t = s.find('table', attrs=x)
         r = re.compile(r'/Bids/')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
 
         for a in t.findAll('a', href=r):
             tr = a.findParent('tr')
             td = tr.findAll('td')
 
-            z = re.search(v, td[-2].text)
+            z = re.search(self.date_regex, td[-2].text)
             if z:
                 m,d,y = z.groups()
 
