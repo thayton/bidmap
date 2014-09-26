@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -23,13 +23,26 @@ class DoravilleGaBidScraper(PdfBidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'RFP+\.pdf$')
+        r = re.compile(r'\bRFP[^.]+\.pdf$')
 
         for a in s.findAll('a', href=r):
+            tr = a.findParent('tr')
+            td = tr.findAll('td')
+
             bid = Bid(org=self.org)
             bid.title = a.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+            
+            d = td[-1].text.split(',', 1)[1]
+            d = d.split('at')[0].strip()
+
+            try:
+                r = time.strptime(d, "%B %d, %Y")
+                bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+            except:
+                pass
+
             bids.append(bid)
 
         return bids
