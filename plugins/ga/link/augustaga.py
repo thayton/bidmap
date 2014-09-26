@@ -25,11 +25,6 @@ class AugustaGaBidScraper(BidScraper):
         self.br.select_form('form1')
         self.br.submit()
 
-        # Clear the cookie jar so we're always starting on the same 
-        # landing page each time we run the plugin
-#        cookiejar = self.br._ua_handlers['_cookies'].cookiejar
-#        cookiejar.clear()
-
         # Select 'Open Bids' tab
         self.br.select_form('form1')
         self.br.submit('ARCBidSearch1$ctl01$btnOpen')
