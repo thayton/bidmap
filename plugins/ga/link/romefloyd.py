@@ -25,13 +25,12 @@ class RomeGaBidScraper(BidScraper):
 
         s = soupify(self.br.response().read())
         r = re.compile(r'/View/PropertyID/\d+/')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
 
         for a in s.findAll('a', href=r):
             tr = a.findParent('tr')
             td = tr.findAll('td')
             
-            z = re.search(v, td[-1].contents[2])
+            z = re.search(self.date_regex, td[-1].contents[2])
             if z:
                 m,d,y = z.groups()
 
