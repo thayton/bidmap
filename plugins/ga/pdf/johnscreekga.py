@@ -23,9 +23,10 @@ class JohnsCreekGaBidScraper(PdfBidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'RFQ-\d+-\d+_bid+\.pdf$')
+        r = re.compile(r'\.pdf$')
+        f = lambda x: x.name == 'a' and re.search(r, x.get('href', '')) and x.text == 'Read more'
 
-        for a in s.findAll('a', href=r):
+        for a in s.findAll(f):
             h3 = a.findPrevious('h3')
             bid = Bid(org=self.org)
             bid.title = h3.text
