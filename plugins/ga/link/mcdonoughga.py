@@ -24,8 +24,7 @@ class McdonoughGaBidScraper(BidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'procurement/-item-\d+$')
-        v = re.compile(r'(\d{1,2})/(\d{1,2})/(\d{4})')
+        r = re.compile(r'/RFP/RFP/\d+/\d+$')
 
         for a in s.findAll('a', href=r):
             tr = a.findParent('tr')
@@ -35,7 +34,7 @@ class McdonoughGaBidScraper(BidScraper):
             if td[-1].text != 'Open':
                 continue
 
-            z = re.search(v, td[-2].text)
+            z = re.search(self.date_regex, td[-2].text)
             if z:
                 m,d,y = z.groups()
 
