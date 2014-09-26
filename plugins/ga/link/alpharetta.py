@@ -35,7 +35,7 @@ class AlpharettaGaBidScraper(BidScraper):
             if td[-1].text != 'OPEN':
                 continue
 
-            z = re.search(v, td[1].contents[2])
+            z = re.search(self.date_regex, td[1].contents[2])
             if z:
                 m,d,y = z.groups()
                 
@@ -55,6 +55,12 @@ class AlpharettaGaBidScraper(BidScraper):
         self.br.open(bid.url)
 
         s = soupify(self.br.response().read())
+        t = s.find(text=re.compile(r'^Contact:'))
+
+        if t:
+            p = t.findParent('p')
+            bid.contact = get_all_text(p)
+
         f = lambda x: x.name == 'a' and x.text == 'Download Bid Package'
         a = s.find(f)
         u = urlparse.urljoin(self.br.geturl(), a['href'])
