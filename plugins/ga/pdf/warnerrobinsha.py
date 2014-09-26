@@ -1,4 +1,4 @@
-import re, urlparse
+import re, urlparse, time, datetime
 
 from bidmap.bidscrapers.pdfscraper.pdfscraper import PdfBidScraper
 from bidmap.htmlparse.soupify import soupify
@@ -23,13 +23,27 @@ class WarnerRobinsGaBidScraper(PdfBidScraper):
         self.br.open(url)
 
         s = soupify(self.br.response().read())
-        r = re.compile(r'^pdfs/[^.]+-bid-[^.]+\.pdf$')
+        r = re.compile(r'\.pdf$')
+        z = re.compile(r'^RFP -')
+        f = lambda x: x.name == 'a' and re.search(r, x.get('href', '')) and re.search(z, x.text)
 
-        for a in s.findAll('a', href=r):
+        for a in s.findAll(f):
             bid = Bid(org=self.org)
             bid.title = a.strong.text
             bid.url = urlparse.urljoin(self.br.geturl(), a['href'])
             bid.location = self.org.location
+
+            d = a.strong.nextSibling
+            d = ' '.join(d.split())
+            d = d.split(',', 1)[1].strip()
+            d = d.rsplit(' ', 1)[0].strip()
+            
+            try:
+                r = time.strptime(d, "%b %d, %Y")
+                bid.due_date = datetime.date(day=r.tm_mday, month=r.tm_mon, year=r.tm_year)
+            except:
+                pass
+
             bids.append(bid)
 
         return bids
